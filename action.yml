@@ -1,0 +1,17 @@
+name: 'Update License Year'
+description: 'Automatically update the year in your license files'
+author: 'Niv'
+
+inputs:
+  token:
+    description: 'GitHub token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Update License Year
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      run: ${{ github.action_path }}/update-license.sh
