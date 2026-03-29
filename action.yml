@@ -15,3 +15,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       run: ${{ github.action_path }}/update-license.sh
+
+branding:
+  icon: 'calendar'
+  color: 'blue'
