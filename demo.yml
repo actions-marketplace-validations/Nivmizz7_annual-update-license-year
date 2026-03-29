@@ -1,0 +1,210 @@
+# ============================================================================
+# DEMO: Update License Year Action
+# ============================================================================
+# This workflow demonstrates how the update-license-year action works
+# ============================================================================
+
+name: Demo - Update License Year
+
+# Trigger conditions
+on:
+  # Run manually from GitHub Actions tab
+  workflow_dispatch:
+  
+  # Run automatically every January 1st at midnight UTC
+  schedule:
+    - cron: '0 0 1 1 *'
+  
+  # Run on every push to main branch (for testing)
+  push:
+    branches:
+      - main
+    paths:
+      - 'LICENSE*'
+      - '.github/workflows/demo.yml'
+
+# ============================================================================
+# PERMISSIONS
+# ============================================================================
+# The action needs permission to write to the repository
+permissions:
+  contents: write      # Allow commits and pushes
+  pull-requests: read  # Optional: for future PR support
+
+# ============================================================================
+# JOBS
+# ============================================================================
+jobs:
+  # =========================================================================
+  # STEP 1: Check current license file
+  # =========================================================================
+  check-before:
+    name: Check LICENSE before update
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Show LICENSE content (BEFORE)
+        run: |
+          echo "=========================================="
+          echo "CURRENT LICENSE FILE (before update)"
+          echo "=========================================="
+          cat LICENSE
+          echo ""
+          echo "Current year: $(date +%Y)"
+          echo "=========================================="
+
+  # =========================================================================
+  # STEP 2: Run the update-license-year action
+  # =========================================================================
+  update-license:
+    name: Update license year
+    runs-on: ubuntu-latest
+    needs: check-before
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Get full history
+      
+      # ===================================================================
+      # THE MAGIC HAPPENS HERE!
+      # ===================================================================
+      # This action will:
+      # 1. Find all LICENSE files
+      # 2. Scan for all years in the files
+      # 3. Replace old years with current year ranges
+      # 4. Commit and push automatically
+      # ===================================================================
+      - name: Update License Year
+        uses: niv/update-license-year@v1
+        with:
+          # Required: GitHub token for making commits
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      # ===================================================================
+      # WHAT HAPPENED:
+      # ===================================================================
+      # The script inside update-license-year does this:
+      #
+      # For each LICENSE file found:
+      #   - Finds patterns like: "Copyright (c) 2020"
+      #   - Updates them to: "Copyright (c) 2020-2026"
+      #   - Already ranges like "2020-2024" become "2020-2026"
+      #
+      # Then it:
+      #   - Stages the changes: git add LICENSE*
+      #   - Creates a commit: git commit -m "chore: update license year"
+      #   - Pushes to repo: git push
+      # ===================================================================
+
+  # =========================================================================
+  # STEP 3: Verify the update worked
+  # =========================================================================
+  check-after:
+    name: Check LICENSE after update
+    runs-on: ubuntu-latest
+    needs: update-license
+    
+    steps:
+      - name: Checkout repository (get latest changes)
+        uses: actions/checkout@v4
+      
+      - name: Show LICENSE content (AFTER)
+        run: |
+          echo "=========================================="
+          echo "UPDATED LICENSE FILE (after action)"
+          echo "=========================================="
+          cat LICENSE
+          echo ""
+          echo "Years have been updated!"
+          echo "=========================================="
+      
+      - name: Show git commit log
+        run: |
+          echo ""
+          echo "=========================================="
+          echo "RECENT COMMITS"
+          echo "=========================================="
+          git log --oneline -5
+
+# ============================================================================
+# WORKFLOW BREAKDOWN
+# ============================================================================
+#
+# 1. TRIGGER
+#    - workflow_dispatch: Manual run from GitHub UI
+#    - schedule: Automatic run on Jan 1st each year
+#    - push: Test run when you push to main
+#
+# 2. CHECKOUT
+#    - Pulls your repository code
+#    - fetch-depth: 0 gets complete history
+#
+# 3. ACTION (update-license-year)
+#    The actual script does:
+#    
+#    #!/bin/bash
+#    CURRENT_YEAR=$(date +%Y)           # Get 2026
+#    
+#    for file in LICENSE LICENSE.md ...; do
+#      # Replace single years with ranges
+#      sed -i "s/\([^0-9]\)\([0-9]\{4\}\)\([^0-9]\)/\1\2-${CURRENT_YEAR}\3/g" "$file"
+#      
+#      # Update existing ranges
+#      sed -i "s/^\([0-9]\{4\}\)-[0-9]\{4\}/\1-${CURRENT_YEAR}/" "$file"
+#    done
+#    
+#    # Commit changes
+#    git config user.name "License Bot"
+#    git config user.email "bot@github.com"
+#    git add LICENSE*
+#    git commit -m "chore: update license year to $CURRENT_YEAR"
+#    git push
+#
+# 4. VERIFY
+#    - Check the updated license content
+#    - Show git log to confirm commit was made
+#
+# ============================================================================
+# EXAMPLE TRANSFORMATIONS
+# ============================================================================
+#
+# INPUT:
+#   MIT License
+#   Copyright (c) 2020 John Doe
+#
+# OUTPUT:
+#   MIT License
+#   Copyright (c) 2020-2026 John Doe
+#
+# ---
+#
+# INPUT:
+#   Copyright © 2019-2024 Company Name
+#
+# OUTPUT:
+#   Copyright © 2019-2026 Company Name
+#
+# ============================================================================
+# MANUAL RUN
+# ============================================================================
+#
+# To run this workflow manually:
+# 1. Go to GitHub repository
+# 2. Click "Actions" tab
+# 3. Click "Demo - Update License Year"
+# 4. Click "Run workflow" button
+# 5. Watch the progress in real-time
+#
+# ============================================================================
+# AUTOMATIC RUN (Every January 1st)
+# ============================================================================
+#
+# GitHub automatically runs this at 00:00 UTC on January 1st
+# No action needed from you!
+#
+# ============================================================================
