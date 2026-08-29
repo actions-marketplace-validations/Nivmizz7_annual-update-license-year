@@ -1,10 +1,10 @@
 # Update License Year
 
-[![GitHub release](https://img.shields.io/github/v/release/nivmizz7/update-license-year?style=flat-square)](https://github.com/nivmizz7/update-license-year/releases)
-[![GitHub stars](https://img.shields.io/github/stars/nivmizz7/update-license-year?style=flat-square)](https://github.com/nivmizz7/update-license-year/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/nivmizz7/update-license-year?style=flat-square)](https://github.com/nivmizz7/update-license-year/network)
+[![GitHub release](https://img.shields.io/github/v/release/nivmizz7/annual-update-license-year?style=flat-square)](https://github.com/nivmizz7/annual-update-license-year/releases)
+[![GitHub stars](https://img.shields.io/github/stars/nivmizz7/annual-update-license-year?style=flat-square)](https://github.com/nivmizz7/annual-update-license-year/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/nivmizz7/annual-update-license-year?style=flat-square)](https://github.com/nivmizz7/annual-update-license-year/network)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
-[![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue?style=flat-square)](https://github.com/nivmizz7/update-license-year/actions)
+[![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue?style=flat-square)](https://github.com/nivmizz7/annual-update-license-year/actions)
 
 A simple GitHub Action to automatically update the year in your LICENSE files.
 
@@ -29,7 +29,7 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: niv/update-license-year@v1
+      - uses: nivmizz7/annual-update-license-year@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
